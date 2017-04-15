@@ -58,13 +58,13 @@ function Solve-Sudoku
             $Script:Results[-1] = @($arr | %{@($_ | %{$_[0]}) -join ' '})
             return
         }
-        # find the first cell with the leatest options
-        $TheLeatestCell = FindTheLeatest($arr)
-        $Options = @($arr[$TheLeatestCell[0]][$TheLeatestCell[1]]).PSObject.Copy()
-        #Write-Host "Row: $($TheLeatestCell[0]); Col: $($TheLeatestCell[1]); Option: $($Options -join ' ')"
+        # find the first cell with the least options
+        $TheLeastCell = FindTheLeast($arr)
+        $Options = @($arr[$TheLeastCell[0]][$TheLeastCell[1]]).PSObject.Copy()
+        #Write-Host "Row: $($TheLeastCell[0]); Col: $($TheLeastCell[1]); Option: $($Options -join ' ')"
         foreach($Option in $Options){
             # Assume an option to the cell go a new loop
-            $arr[$TheLeatestCell[0]][$TheLeatestCell[1]] = @($Option)
+            $arr[$TheLeastCell[0]][$TheLeastCell[1]] = @($Option)
             if($AnswerCount -lt $HowManyAnswersYouWanttoGet){
                 GoCalculate($arr)
             }
@@ -97,7 +97,7 @@ function Solve-Sudoku
     }
 
     # Find the cell with the least number options, return its position and count of options
-    function FindTheLeatest($arr){
+    function FindTheLeast($arr){
         foreach($k in 2..9){
             for($i = 0; $i -lt 9; $i++){
                 for($j = 0; $j -lt 9; $j++){
