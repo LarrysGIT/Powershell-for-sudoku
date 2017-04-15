@@ -138,7 +138,7 @@ function Solve-Sudoku
     foreach($SudokuMatrix in $SudokuMatrixs)
     {
         $n++
-        Wrote-Host "Processing sudoku: [$n]"
+        Write-Host "Processing sudoku: [$n]"
         # Loop each cell, add array [1..9] for each null cell.
         for($i = 0; $i -lt 9; $i++){
             for($j = 0; $j -lt 9; $j++){
