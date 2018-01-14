@@ -14,7 +14,7 @@ function Solve-Sudoku
     }
     catch
     {
-        Write-Host 'Please provide sudoku text file'
+        Write-Host 'Please provide the sudoku text file'
         return
     }
 
@@ -40,7 +40,7 @@ function Solve-Sudoku
         }
     }
 
-    Write-Host "Sudoku in file found: $($SudokuMatrixs.Count)"
+    Write-Host "Sudokus in file count: $($SudokuMatrixs.Count)"
 
     function GoCalculate($arr){
         # update array to the latest
@@ -52,18 +52,18 @@ function Solve-Sudoku
             return
         }
         # how many cells confirmed
-        if((CellsConfirmed($arr)) -eq 81){
+        if((CellsConfirmed($arr)) -eq 81){ # 81 elements have been confirmed, one answer found
             $Script:AnswerCount++
             $Script:Results += $null
             $Script:Results[-1] = @($arr | %{@($_ | %{$_[0]}) -join ' '})
             return
         }
-        # find the first cell with the least options
+        # find the element that contains the least possibility of numbers
         $TheLeastCell = FindTheLeast($arr)
         $Options = @($arr[$TheLeastCell[0]][$TheLeastCell[1]]).PSObject.Copy()
         #Write-Host "Row: $($TheLeastCell[0]); Col: $($TheLeastCell[1]); Option: $($Options -join ' ')"
         foreach($Option in $Options){
-            # Assume an option to the cell go a new loop
+            # Assume an number to the element and fire a new caculation
             $arr[$TheLeastCell[0]][$TheLeastCell[1]] = @($Option)
             if($AnswerCount -lt $HowManyAnswersYouWanttoGet){
                 GoCalculate($arr)
@@ -73,12 +73,8 @@ function Solve-Sudoku
         }
     }
 
-    # Loop each cell, calculate possible options and remove impossible options from cell.
+    # Loop each element, calculate possible number options for each element.
     function GoLoop($arr){
-        #$NewArr = @($null) * 9
-        #for($i = 0; $i -lt 9; $i++){
-        #    $NewArr[$i] = $arr[$i].PSObject.Copy()
-        #}
         for($i = 0; $i -lt 9; $i++){
             for($j = 0; $j -lt 9; $j++){
                 if($arr[$i][$j].Count -ne 1){
@@ -93,10 +89,9 @@ function Solve-Sudoku
                 }
             }
         }
-        #return $NewArr
     }
 
-    # Find the cell with the least number options, return its position and count of options
+    # Find the element with the least possibility of number options, return its position and count of number optinos
     function FindTheLeast($arr){
         foreach($k in 2..9){
             for($i = 0; $i -lt 9; $i++){
@@ -109,7 +104,7 @@ function Solve-Sudoku
         }
     }
 
-    # Calculate how many cells have been confirmed, if it's 81, correct answer hit.
+    # Calculate how many elements have been confirmed, if it's 81, correct answer hit.
     function CellsConfirmed($arr){
         $Confirmed = 0
         for($i = 0; $i -lt 9; $i++){
@@ -122,24 +117,24 @@ function Solve-Sudoku
         return $Confirmed
     }
 
-    # Loop each cell, if the number options of the cell is null, means current loop is a dead end.
+    # Loop each element, if the number options of any element is 0, means current calculation is a dead end.
     function Verify($arr){
         for($i = 0; $i -lt 9; $i++){
             for($j = 0; $j -lt 9; $j++){
                 if($arr[$i][$j].Count -eq 0){
-                    return $i, $j, $true # dead end
+                    return $i, $j, $true # dead end, element in [$i, $j] has no available numbers
                 }
             }
         }
-        return $i, $j, $false
+        return $i, $j, $false # return false means all elements have available numbers
     }
 
     $n = 0
-    foreach($SudokuMatrix in $SudokuMatrixs)
+    foreach($SudokuMatrix in $SudokuMatrixs) # loop every sudoku found in sudoku file
     {
         $n++
         Write-Host "Processing sudoku: [$n]"
-        # Loop each cell, add array [1..9] for each null cell.
+        # Loop each element, add array [1..9] for each every blank element.
         for($i = 0; $i -lt 9; $i++){
             for($j = 0; $j -lt 9; $j++){
                 if(!$SudokuMatrix[$i][$j]){
