@@ -1,4 +1,5 @@
 ## any line start with '#' will be ignored
+# this text file includes 2 sets of sudoku
 0 0 0  0 0 0  0 0 3
 0 0 0  0 0 0  0 4 0
 0 5 1  6 0 0  0 0 0
