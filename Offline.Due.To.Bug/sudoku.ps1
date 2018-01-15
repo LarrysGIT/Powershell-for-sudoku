@@ -52,7 +52,8 @@ function Solve-Sudoku
             return
         }
         # how many cells confirmed
-        if((CellsConfirmed($arr)) -eq 81){ # 81 elements have been confirmed, one answer found
+        $n_CellsConfirmed = CellsConfirmed($arr)
+        if($n_CellsConfirmed -eq 81){ # 81 elements have been confirmed, one answer found
             $Script:AnswerCount++
             $Script:Results += $null
             $Script:Results[-1] = @($arr | %{@($_ | %{$_[0]}) -join ' '})
@@ -109,7 +110,7 @@ function Solve-Sudoku
         $Confirmed = 0
         for($i = 0; $i -lt 9; $i++){
             for($j = 0; $j -lt 9; $j++){
-                if($arr[$i][$j].Count -eq 1){
+                if($arr[$i][$j] -and $arr[$i][$j].Count -eq 1){
                     $Confirmed++
                 }
             }
@@ -137,8 +138,8 @@ function Solve-Sudoku
         # Loop each element, add array [1..9] for each every blank element.
         for($i = 0; $i -lt 9; $i++){
             for($j = 0; $j -lt 9; $j++){
-                if(!$SudokuMatrix[$i][$j]){
-                    $SudokuMatrix[$i][$j] = 1..9
+                if($SudokuMatrix[$i][$j] -eq 0){
+                    $SudokuMatrix[$i][$j] = @(1..9)
                 }else{
                     $SudokuMatrix[$i][$j] = @($SudokuMatrix[$i][$j])
                 }
