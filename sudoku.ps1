@@ -42,18 +42,19 @@ function Solve-Sudoku
 
     Write-Host "Sudokus in file count: $($SudokuMatrixs.Count)"
     function GoCalculate($arr){
+        if(!$arr){return}
+
+        # make a deep copy of array for assuming numbers
         $arr = [Management.Automation.PSSerializer]::DeSerialize([Management.Automation.PSSerializer]::Serialize($arr))
-        # update array to the latest
-        GoLoop($arr)
-        #Write-Host "Debug===============Debug===============Debug"
-        #debug($arr)
+
+        # Filter out possible numbers for all elements
+        RestrictPossibleNumbers($arr)
+
         # verify the calculation is not a dead end!
-        $ZeroPosition = Verify($arr)
-        if($ZeroPosition[2]){
-            # Write-Host "0 option found: [$($ZeroPosition[0])][$($ZeroPosition[1])]"
-            return
-        }
-        # how many cells confirmed
+        $NonOptionElement = Verify($arr)
+        if($NonOptionElement[2]){return}
+
+        # how many elements are confirmed
         $n_CellsConfirmed = CellsConfirmed($arr)
         if($n_CellsConfirmed -eq 81){ # 81 elements have been confirmed, one answer found
             $Script:AnswerCount++
@@ -61,32 +62,38 @@ function Solve-Sudoku
             $Script:Results[-1] = @($arr | %{@($_ | %{$_[0]}) -join ' '})
             return
         }
-        # find the element that contains the least possibility of numbers
-        $TheLeastCell = FindTheLeast($arr)
-        $Options = [Management.Automation.PSSerializer]::DeSerialize([Management.Automation.PSSerializer]::Serialize($arr[$TheLeastCell[0]][$TheLeastCell[1]]))
-        #Write-Host "Row: $($TheLeastCell[0]); Col: $($TheLeastCell[1]); Option: $($Options -join ' ')"
+
+        # find the element that contains the least options of numbers
+        $TheLeastOptionCell = FindTheLeast($arr)
+
+        # make a copy of options
+        $Options = [Management.Automation.PSSerializer]::DeSerialize([Management.Automation.PSSerializer]::Serialize($arr[$TheLeastOptionCell[0]][$TheLeastOptionCell[1]]))
+
+        # assume options
         foreach($Option in $Options){
+            $arr[$TheLeastOptionCell[0]][$TheLeastOptionCell[1]] = @($Option)
+            # Assume an number to the element and fire a new caculation
             if($Script:AnswerCount -lt $HowManyAnswersYouWanttoGet){
-                # Assume an number to the element and fire a new caculation
-                $arr[$TheLeastCell[0]][$TheLeastCell[1]] = @($Option)
                 GoCalculate($arr)
             }
-            else
-            {return}
+            else{return}
         }
     }
 
     # Loop each element, calculate possible number options for each element.
-    function GoLoop($arr){
-        for($i = 0; $i -lt 9; $i++){
-            for($j = 0; $j -lt 9; $j++){
-                if($arr[$i][$j].Count -ne 1){
-                    for($k = 0; $k -lt 9; $k++){
-                        if($arr[$i][$k].Count -eq 1 -and $k -ne $j){
-                            $arr[$i][$j] = @($arr[$i][$j] | ?{$_ -ne $arr[$i][$k][0]})
-                        }
-                        if($arr[$k][$j].Count -eq 1 -and $k -ne $i){
-                            $arr[$i][$j] = @($arr[$i][$j] | ?{$_ -ne $arr[$k][$j][0]})
+    function RestrictPossibleNumbers($arr){
+        for($l = 0; $l -lt 9; $l++)
+        {
+            for($i = 0; $i -lt 9; $i++){
+                for($j = 0; $j -lt 9; $j++){
+                    if($arr[$i][$j].Count -ne 1){
+                        for($k = 0; $k -lt 9; $k++){
+                            if($arr[$i][$k].Count -eq 1 -and $k -ne $j){
+                                $arr[$i][$j] = @($arr[$i][$j] | ?{$_ -ne $arr[$i][$k][0]})
+                            }
+                            if($arr[$k][$j].Count -eq 1 -and $k -ne $i){
+                                $arr[$i][$j] = @($arr[$i][$j] | ?{$_ -ne $arr[$k][$j][0]})
+                            }
                         }
                     }
                 }
@@ -107,6 +114,7 @@ function Solve-Sudoku
         }
     }
 
+    # debug output
     function debug($arr)
     {
         $arrx = $arr.psobject.copy()
@@ -118,9 +126,13 @@ function Solve-Sudoku
                 {
                     Write-Host $arrx[$a][$aa].Count -NoNewline -ForegroundColor Green
                 }
-                else
+                elseif($arrx[$a][$aa].Count -eq 1)
                 {
                     Write-Host $arrx[$a][$aa][0] -NoNewline -ForegroundColor Yellow
+                }
+                else
+                {
+                    Write-Host 'X' -NoNewline -ForegroundColor Red
                 }
                 Write-Host ' ' -NoNewline
             }
