@@ -41,10 +41,12 @@ function Solve-Sudoku
     }
 
     Write-Host "Sudokus in file count: $($SudokuMatrixs.Count)"
-
     function GoCalculate($arr){
+        $arr = [Management.Automation.PSSerializer]::DeSerialize([Management.Automation.PSSerializer]::Serialize($arr))
         # update array to the latest
         GoLoop($arr)
+        #Write-Host "Debug===============Debug===============Debug"
+        #debug($arr)
         # verify the calculation is not a dead end!
         $ZeroPosition = Verify($arr)
         if($ZeroPosition[2]){
@@ -61,12 +63,12 @@ function Solve-Sudoku
         }
         # find the element that contains the least possibility of numbers
         $TheLeastCell = FindTheLeast($arr)
-        $Options = @($arr[$TheLeastCell[0]][$TheLeastCell[1]]).PSObject.Copy()
+        $Options = [Management.Automation.PSSerializer]::DeSerialize([Management.Automation.PSSerializer]::Serialize($arr[$TheLeastCell[0]][$TheLeastCell[1]]))
         #Write-Host "Row: $($TheLeastCell[0]); Col: $($TheLeastCell[1]); Option: $($Options -join ' ')"
         foreach($Option in $Options){
-            # Assume an number to the element and fire a new caculation
-            $arr[$TheLeastCell[0]][$TheLeastCell[1]] = @($Option)
-            if($AnswerCount -lt $HowManyAnswersYouWanttoGet){
+            if($Script:AnswerCount -lt $HowManyAnswersYouWanttoGet){
+                # Assume an number to the element and fire a new caculation
+                $arr[$TheLeastCell[0]][$TheLeastCell[1]] = @($Option)
                 GoCalculate($arr)
             }
             else
@@ -80,10 +82,10 @@ function Solve-Sudoku
             for($j = 0; $j -lt 9; $j++){
                 if($arr[$i][$j].Count -ne 1){
                     for($k = 0; $k -lt 9; $k++){
-                        if($arr[$i][$k].Count -eq 1 -and $arr[$i][$j].Count -ne 1){
+                        if($arr[$i][$k].Count -eq 1 -and $k -ne $j){
                             $arr[$i][$j] = @($arr[$i][$j] | ?{$_ -ne $arr[$i][$k][0]})
                         }
-                        if($arr[$k][$j].Count -eq 1 -and $arr[$i][$j].Count -ne 1){
+                        if($arr[$k][$j].Count -eq 1 -and $k -ne $i){
                             $arr[$i][$j] = @($arr[$i][$j] | ?{$_ -ne $arr[$k][$j][0]})
                         }
                     }
@@ -102,6 +104,27 @@ function Solve-Sudoku
                     }
                 }
             }
+        }
+    }
+
+    function debug($arr)
+    {
+        $arrx = $arr.psobject.copy()
+        for($a = 0; $a -lt $arrx.Count; $a++)
+        {
+            for($aa = 0; $aa -lt $arrx[$a].Count; $aa++)
+            {
+                if($arrx[$a][$aa].Count -gt 1)
+                {
+                    Write-Host $arrx[$a][$aa].Count -NoNewline -ForegroundColor Green
+                }
+                else
+                {
+                    Write-Host $arrx[$a][$aa][0] -NoNewline -ForegroundColor Yellow
+                }
+                Write-Host ' ' -NoNewline
+            }
+            Write-Host "`n"
         }
     }
 
