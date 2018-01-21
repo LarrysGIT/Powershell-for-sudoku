@@ -1,10 +1,12 @@
 # Powershell-for-sudoku
 
 ### just for fun
+
 ### this is a powershell script to solve sudoku
 
 ### how to use?
-please open sudoku.txt for example
+
+please open sudoku.txt for samples
 
 ```
 PS > . .\sudoku.ps1
