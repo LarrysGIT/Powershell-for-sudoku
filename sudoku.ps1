@@ -5,7 +5,8 @@ function Solve-Sudoku
     param(
         [string]$Path = 'sudoku.txt',
         # How many answers to return?
-        [int]$HowManyAnswersYouWanttoGet = 1
+        [int]$HowManyAnswersYouWanttoGet = 1,
+        [switch]$debug
     )
 
     try
@@ -48,7 +49,8 @@ function Solve-Sudoku
         $arr = [Management.Automation.PSSerializer]::DeSerialize([Management.Automation.PSSerializer]::Serialize($arr))
 
         # Filter out possible numbers for all elements
-        RestrictPossibleNumbers($arr)
+        RestrictPossibleNumbers2($arr)
+        if($debug){debug($arr); $x = Read-Host}
 
         # verify the calculation is not a dead end!
         $NonOptionElement = Verify($arr)
@@ -81,18 +83,37 @@ function Solve-Sudoku
     }
 
     # Loop each element, calculate possible number options for each element.
-    function RestrictPossibleNumbers($arr){
-        for($l = 0; $l -lt 9; $l++)
+    function RestrictPossibleNumbers2($arr){
+        for($i = 0; $i -lt 9; $i++)
         {
-            for($i = 0; $i -lt 9; $i++){
-                for($j = 0; $j -lt 9; $j++){
-                    if($arr[$i][$j].Count -ne 1){
-                        for($k = 0; $k -lt 9; $k++){
-                            if($arr[$i][$k].Count -eq 1 -and $k -ne $j){
-                                $arr[$i][$j] = @($arr[$i][$j] | ?{$_ -ne $arr[$i][$k][0]})
-                            }
-                            if($arr[$k][$j].Count -eq 1 -and $k -ne $i){
-                                $arr[$i][$j] = @($arr[$i][$j] | ?{$_ -ne $arr[$k][$j][0]})
+            for($j = 0; $j -lt 9; $j++)
+            {
+                if($arr[$i][$j].Count -ne 1)
+                {
+                    for($h = 0; $h -lt 9; $h++)
+                    {
+                        if($h -ne $i -and $arr[$h][$j].Count -eq 1)
+                        {
+                            $arr[$i][$j] = @($arr[$i][$j] | ?{$_ -ne $arr[$h][$j][0]})
+                        }
+                    }
+                    for($v = 0; $v -lt 9; $v++)
+                    {
+                        if($v -ne $j -and $arr[$i][$v].Count -eq 1)
+                        {
+                            $arr[$i][$j] = @($arr[$i][$j] | ?{$_ -ne $arr[$i][$v][0]})
+                        }
+                    }
+                    ###
+                    $ni = [math]::Floor($i/3)
+                    $nj = [math]::Floor($j/3)
+                    for($mi = $ni * 3; $mi -lt (3 + $ni * 3); $mi++)
+                    {
+                        for($mj = $nj * 3; $mj -lt (3 + $nj * 3); $mj++)
+                        {
+                            if($mi -ne $i -and $mj -ne $j -and $arr[$mi][$mj].Count -eq 1)
+                            {
+                                $arr[$i][$j] = @($arr[$i][$j] | ?{$_ -ne $arr[$mi][$mj][0]})
                             }
                         }
                     }
@@ -117,7 +138,8 @@ function Solve-Sudoku
     # debug output
     function debug($arr)
     {
-        $arrx = $arr.psobject.copy()
+        Write-Host "-------------------------"
+        $arrx = [Management.Automation.PSSerializer]::DeSerialize([Management.Automation.PSSerializer]::Serialize($arr))
         for($a = 0; $a -lt $arrx.Count; $a++)
         {
             for($aa = 0; $aa -lt $arrx[$a].Count; $aa++)
@@ -137,6 +159,13 @@ function Solve-Sudoku
                 Write-Host ' ' -NoNewline
             }
             Write-Host "`n"
+        }
+        for($a = 0; $a -lt 3; $a++)
+        {
+            for($aa = 0; $aa -lt 3; $aa++)
+            {
+                Write-Host "[$a, $aa] Options count: $($arrx[$a][$aa].Count); Options: $($arrx[$a][$aa] -join ',')"
+            }
         }
     }
 
@@ -196,3 +225,4 @@ function Solve-Sudoku
     }
 
 }
+

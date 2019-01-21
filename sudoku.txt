@@ -12,17 +12,3 @@
 0 0 3  4 0 2  0 0 0
 0 0 8  3 0 0  7 1 0
 
-## below numbers look crazy without order, but it is ok, as long as there are enough numbers (at least 81)
-## and without other characters except numbers and blanks, script can groups all 81 numbers and do calculation
-0 0 0     0 0 0  0 0 3
-0 0 0   0 0 0  0 4 0
-0 5 1        6000 0 0
-0 3 0  0 0
-8  0 0 2
-9 0 0  160  0 0 0
-0 6 0  0 5 4  0 0 0
-5 4 0  0 0 0  0 2 0
-0 0 3  4
-0 2  0 0 0
-0 0 8  3 0 0  7
-1 0
