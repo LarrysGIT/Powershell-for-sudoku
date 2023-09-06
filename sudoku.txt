@@ -14,14 +14,14 @@
 
 # this is the same sudoku but in a crazy order, the number of numbers must be 81 and be consistency contains only white characters
 
-0 0 0  0 0 0  0 0 30 0 0  0 0 0  0 4 00 5 1  6 0 0  0 0 0
-0 3 0  0 0 8  0 0 2
-9 001 6 0  0 0 0
-0 6 0  0 5 4  0 0 0
+000 000 000
+000 000 000
+000 000 000
 
-5 4 0  0 0 0  0 2 0
-0 0 3  402  0 0 0
+000 000 000
+000 000 000
+000 000 000
 
-0 0 8  3 0 0  7 1 0
-
-
+000 000 000
+000 000 000
+000 000 000
